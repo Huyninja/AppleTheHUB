@@ -73,50 +73,31 @@ if placeId == 6152116144 or placeId == 13883279773 then
                 if getgenv().autonpc then
                     if not LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
                         antifall3 = Instance.new("BodyVelocity", LP.Character.HumanoidRootPart)
-                        antifall3.Velocity = Vector3.new()
-                        antifall3.MaxForce = Vector3.new()
+                        antifall3.Velocity = Vector3.new(0, 0, 0)
+                        antifall3.MaxForce = Vector3.new(9e9, 9e9, 9e9)
                     elseif LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
-                        for i, v in pairs(game:GetService("Workspace").Mobs.Bosses:GetDescendants()) do
+                        for i, v in pairs(game:GetService("Workspace").Mobs:GetDescendants()) do
                             if v:IsA("Model") and v:FindFirstChild("Humanoid") then
                                 if v.Humanoid.Health > 0 then
-                                    local distance = GetDistance(v:GetModelCFrame() * CFrame.new(0, 6, 0) *
-                                        CFrame.Angles(math.rad(-90), 0, 0))
-                                    if autonpc then
-                                        spawn(function()
-                                            game:GetService("RunService").Stepped:Connect(function()
-                                                for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
-                                                    if v:IsA("BasePart") then
-                                                        v.CanCollide = false
-                                                    end
-                                                    if v:IsA("Humanoid") then
-                                                        v:ChangeState(11)
-                                                    end
-                                                end
-                                            end)
-                                        end)
-                                    else
-                                        break
-                                    end
+                                    local distance = GetDistance(v:GetModelCFrame() * FarmModes1)
                                     repeat
                                         task.wait()
-                                        if distance < 25 and distance < 150 then
+                                        if distance < 10 then
                                             if TweenFa then
                                                 TweenFa:Cancel()
                                                 wait(0.1)
                                             end
-                                            LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() *
-                                                CFrame.new(0, 6, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                                            LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes1
                                         else
-                                            TweenFa = Tween(v:GetModelCFrame() * CFrame.new(0, 6, 0) *
-                                                CFrame.Angles(math.rad(-90), 0, 0))
+                                            TweenFa = Tween(v:GetModelCFrame() * FarmModes1)
                                         end
-                                    until not getgenv().autonpc or v.Humanoid.Health <= 0
+                                    until not getgenv().auto or v.Humanoid.Health <= 0
                                 end
                             end
                         end
                         task.wait(1)
                     else
-                        if autoboss == false and autodung == false and automugen == false and autolily == false and eatsoul == false and autonpc == false then
+                        if autonpc == false then
                             antifall3:Destroy()
                             antifall3.Velocity = Vector3.new()
                             antifall3.MaxForce = Vector3.new()
@@ -161,8 +142,6 @@ if placeId == 6152116144 or placeId == 13883279773 then
     anti_cheat2.Disabled = true
 
     --auto lily
-    getgenv().delay = 0.5
-
     local RunService = game:GetService("RunService");
     local Players = game:GetService("Players");
     local Player = Players.LocalPlayer;
@@ -171,6 +150,28 @@ if placeId == 6152116144 or placeId == 13883279773 then
 
     local TeleportSpeed = speed or 250;
     local NextFrame = RunService.Heartbeat;
+
+    local function fireproximityprompt(ProximityPrompt, Amount, Skip)
+        assert(ProximityPrompt, "Argument #1 Missing or nil")
+        assert(typeof(ProximityPrompt) == "Instance" and ProximityPrompt:IsA("ProximityPrompt"),
+            "Attempted to fire a Value that is not a ProximityPrompt")
+        local HoldDuration = ProximityPrompt.HoldDuration
+        if Skip then
+            ProximityPrompt.HoldDuration = 0
+        end
+        for i = 1, Amount or 1 do
+            ProximityPrompt:InputHoldBegin()
+            if Skip then
+                local RunService = game:GetService("RunService")
+                local Start = time()
+                repeat
+                    RunService.Heartbeat:Wait(0.1)
+                until time() - Start > HoldDuration
+            end
+            ProximityPrompt:InputHoldEnd()
+        end
+        ProximityPrompt.HoldDuration = HoldDuration
+    end
 
     local function ImprovedTeleport(Target)
         if (typeof(Target) == "Instance" and Target:IsA("BasePart")) then
@@ -205,6 +206,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
     end
     ;
 
+
     local flowers = game:GetService("Workspace").Demon_Flowers_Spawn
     local function getFlower()
         local dist, flower = math.huge
@@ -223,7 +225,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
     local function lily()
         local suc, err = pcall(function()
             while task.wait() do
-                if autolily then
+                if TP then
                     repeat
                         task.wait()
                         ImprovedTeleport(getFlower().WorldPivot.Position)
@@ -249,7 +251,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
         end)
         if suc then
             while task.wait() do
-                if autolily then
+                if TP then
                     repeat
                         task.wait()
                         ImprovedTeleport(getFlower().WorldPivot.Position)
@@ -2003,50 +2005,31 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
                 if getgenv().autonpc then
                     if not LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
                         antifall3 = Instance.new("BodyVelocity", LP.Character.HumanoidRootPart)
-                        antifall3.Velocity = Vector3.new()
-                        antifall3.MaxForce = Vector3.new()
+                        antifall3.Velocity = Vector3.new(0, 0, 0)
+                        antifall3.MaxForce = Vector3.new(9e9, 9e9, 9e9)
                     elseif LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
-                        for i, v in pairs(game:GetService("Workspace").Mobs.Bosses:GetDescendants()) do
+                        for i, v in pairs(game:GetService("Workspace").Mobs:GetDescendants()) do
                             if v:IsA("Model") and v:FindFirstChild("Humanoid") then
                                 if v.Humanoid.Health > 0 then
-                                    local distance = GetDistance(v:GetModelCFrame() * CFrame.new(0, 6, 0) *
-                                        CFrame.Angles(math.rad(-90), 0, 0))
-                                    if autonpc then
-                                        spawn(function()
-                                            game:GetService("RunService").Stepped:Connect(function()
-                                                for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
-                                                    if v:IsA("BasePart") then
-                                                        v.CanCollide = false
-                                                    end
-                                                    if v:IsA("Humanoid") then
-                                                        v:ChangeState(11)
-                                                    end
-                                                end
-                                            end)
-                                        end)
-                                    else
-                                        break
-                                    end
+                                    local distance = GetDistance(v:GetModelCFrame() * FarmModes1)
                                     repeat
                                         task.wait()
-                                        if distance < 25 and distance < 150 then
+                                        if distance < 10 then
                                             if TweenFa then
                                                 TweenFa:Cancel()
                                                 wait(0.1)
                                             end
-                                            LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() *
-                                                CFrame.new(0, 6, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                                            LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes1
                                         else
-                                            TweenFa = Tween(v:GetModelCFrame() * CFrame.new(0, 6, 0) *
-                                                CFrame.Angles(math.rad(-90), 0, 0))
+                                            TweenFa = Tween(v:GetModelCFrame() * FarmModes1)
                                         end
-                                    until not getgenv().autonpc or v.Humanoid.Health <= 0
+                                    until not getgenv().auto or v.Humanoid.Health <= 0
                                 end
                             end
                         end
                         task.wait(1)
                     else
-                        if autoboss == false and autodung == false and automugen == false and autolily == false and eatsoul == false and autonpc == false then
+                        if autonpc == false then
                             antifall3:Destroy()
                             antifall3.Velocity = Vector3.new()
                             antifall3.MaxForce = Vector3.new()
@@ -3085,25 +3068,25 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
                                 local Handle_Initiate_S_ = game.ReplicatedStorage.Remotes.To_Server.Handle_Initiate_S_
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                             end
                         end
                     end)
@@ -3153,7 +3136,7 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
                             end
                         end
                     end)
-                    wait()
+                    wait(0.05)
                 end
             end
         end
@@ -3178,25 +3161,25 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
                                 local Handle_Initiate_S_ = game.ReplicatedStorage.Remotes.To_Server.Handle_Initiate_S_
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait()
+                                task.wait(0.01)
                             end
                         end
                     end)
@@ -3692,6 +3675,15 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
         Flag = "Toggle15",
         Callback = function(state)
             getgenv().autoboss = state;
+        end
+    })
+
+    Farmsetting:CreateToggle({
+        Name = "Farm All NPC",
+        CurrentValue = false,
+        Flag = "Toggle46",
+        Callback = function(state)
+            getgenv().autonpc = state;
         end
     })
 
