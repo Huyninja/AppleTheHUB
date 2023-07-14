@@ -66,48 +66,6 @@ if placeId == 6152116144 or placeId == 13883279773 then
     --whitescreen
     local rn = game:GetService("RunService")
 
-    --autonpc
-    task.spawn(function()
-        while task.wait() do
-            pcall(function()
-                if getgenv().autonpc then
-                    if not LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
-                        antifall3 = Instance.new("BodyVelocity", LP.Character.HumanoidRootPart)
-                        antifall3.Velocity = Vector3.new(0, 0, 0)
-                        antifall3.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-                    elseif LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
-                        for i, v in pairs(game:GetService("Workspace").Mobs:GetDescendants()) do
-                            if v:IsA("Model") and v:FindFirstChild("Humanoid") then
-                                if v.Humanoid.Health > 0 then
-                                    local distance = GetDistance(v:GetModelCFrame() * FarmModes1)
-                                    repeat
-                                        task.wait()
-                                        if distance < 10 then
-                                            if TweenFa then
-                                                TweenFa:Cancel()
-                                                wait(0.1)
-                                            end
-                                            LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes1
-                                        else
-                                            TweenFa = Tween(v:GetModelCFrame() * FarmModes1)
-                                        end
-                                    until not getgenv().auto or v.Humanoid.Health <= 0
-                                end
-                            end
-                        end
-                        task.wait(1)
-                    else
-                        if autonpc == false then
-                            antifall3:Destroy()
-                            antifall3.Velocity = Vector3.new()
-                            antifall3.MaxForce = Vector3.new()
-                        end
-                    end
-                end
-            end)
-        end
-    end)
-
     --anti idle
     function idle()
         if antiidle then
@@ -492,7 +450,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
     --autoboss
     getgenv().tweenspeed = 150;
     getgenv().ABfarmdistance = 5;
-    getgenv().ABFarmMethod = "Below"
+    getgenv().ABFarmMethod = "Above"
 
     local function GetDistance(Endpoint)
         if typeof(Endpoint) == "Instance" then
@@ -506,6 +464,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
         return Magnitude
     end
 
+
     function Tween(Endpoint)
         if typeof(Endpoint) == "Instance" then
             Endpoint = Endpoint.CFrame
@@ -513,8 +472,8 @@ if placeId == 6152116144 or placeId == 13883279773 then
         local TweenFunc = {}
         local Distance = GetDistance(Endpoint)
         local TweenInfo = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart,
-            TweenInfo.new(Distance / tweenspeed, Enum.EasingStyle.Linear),
-            { CFrame = Endpoint * CFrame.fromAxisAngle(Vector3.new(1, 1, 1), math.rad(0)) })
+            TweenInfo.new(Distance / getgenv().tweenspeed, Enum.EasingStyle.Linear),
+            { CFrame = Endpoint * CFrame.fromAxisAngle(Vector3.new(1, 0, 0), math.rad(0)) })
         TweenInfo:Play()
         function TweenFunc:Cancel()
             TweenInfo:Cancel()
@@ -529,24 +488,33 @@ if placeId == 6152116144 or placeId == 13883279773 then
         return TweenFunc
     end
 
-    task.spawn(function()
-        while true do
+    spawn(function()
+        while wait() do
             pcall(function()
-                if ABFarmMethod == "Above" then
-                    FarmModes1 = CFrame.new(0, getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-                elseif ABFarmMethod == "Below" then
-                    FarmModes1 = CFrame.new(0, -getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(90), 0, 0)
-                elseif ABFarmMethod == "Behind" then
-                    FarmModes1 = CFrame.new(0, 0, getgenv().ABfarmdistance)
-                elseif ABFarmMethod == "Ahead" then
-                    FarmModes1 = CFrame.new(0, 0, -getgenv().ABfarmdistance)
+                SkillActive = AutoUseSkills and (FarmBoss and NearestMobs) or
+                    AutoUseSkills and (FarmQuest and NearestMobs) or
+                    AutoUseSkills and (FarmMob and NearestMobs) or AutoUseSkills and (AllBosses and NearestMobs)
+                if FarmMethod == "Above" then
+                    FarmModes = CFrame.new(0, getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                elseif FarmMethod == "Below" then
+                    FarmModes = CFrame.new(0, -getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(90), 0, 0)
+                elseif FarmMethod == "Behind" then
+                    FarmModes = CFrame.new(0, 0, getgenv().ABfarmdistance)
+                elseif FarmMethod == "Front" then
+                    FarmModes = CFrame.new(0, 0, -getgenv().ABfarmdistance)
                 end
-                task.wait()
+                for i, v in pairs(LP.PlayerGui.MainGuis.Items.Scroll:GetChildren()) do
+                    Insert = true
+                    if v.ClassName == "Frame" and v.Name ~= "Health Elixir" and v.Name ~= "Health Regen Elixir" and v.Name ~= "Stamina Elixir" and v.Name ~= "Bandage" then
+                        for i, v2 in pairs(invTable) do if v2 == v.Name then Insert = false end end
+                        if Insert == true then table.insert(invTable, v.Name) end
+                    end
+                end
             end)
         end
     end)
 
-    task.spawn(function()
+    spawn(function()
         while task.wait() do
             pcall(function()
                 if getgenv().autoboss then
@@ -555,49 +523,45 @@ if placeId == 6152116144 or placeId == 13883279773 then
                         antifall3.Velocity = Vector3.new(0, 0, 0)
                         antifall3.MaxForce = Vector3.new(9e9, 9e9, 9e9)
                     elseif LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
-                        for i, v in pairs(game:GetService("Workspace").Mobs.Bosses:GetDescendants()) do
-                            if v:IsA("Model") and v:FindFirstChild("Humanoid") then
-                                if v.Humanoid.Health > 0 then
-                                    local distance = GetDistance(v:GetModelCFrame() * FarmModes1)
-                                    if autoboss then
-                                        spawn(function()
-                                            game:GetService("RunService").Stepped:Connect(function()
-                                                for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
-                                                    if v:IsA("BasePart") then
-                                                        v.CanCollide = false
-                                                    end
-                                                    if v:IsA("Humanoid") then
-                                                        v:ChangeState(11)
-                                                    end
-                                                end
-                                            end)
-                                        end)
-                                    else
-                                        break
-                                    end
-                                    repeat
-                                        task.wait()
-                                        if distance < 25 and distance < 150 then
-                                            if TweenFa then
-                                                TweenFa:Cancel()
-                                                wait(0.1)
-                                            end
-                                            LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes1
-                                        else
-                                            TweenFa = Tween(v:GetModelCFrame() * FarmModes1)
+                        local v = GetNearestBoss()
+                        if autoboss then
+                            spawn(function()
+                                game:GetService("RunService").Stepped:Connect(function()
+                                    for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+                                        if v:IsA("BasePart") then
+                                            v.CanCollide = false
                                         end
-                                    until not getgenv().autoboss or v.Humanoid.Health <= 0
+                                        if v:IsA("Humanoid") then
+                                            v:ChangeState(11)
+                                        end
+                                    end
+                                end)
+                            end)
+                        end
+                        repeat
+                            task.wait()
+                            if GetDistance(v:GetModelCFrame() * FarmModes) < 25 and GetDistance(v:GetModelCFrame() * FarmModes) < 150 then
+                                if TweenFa then
+                                    TweenFa:Cancel()
+                                    wait(.1)
                                 end
+                                LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes
+                            else
+                                TweenFa = Tween(v:GetModelCFrame() * FarmModes)
                             end
-                        end
-                        task.wait(1)
-                    else
-                        if autoboss == false and autodung == false and automugen == false and autolily == false and eatsoul == false and autonpc == false then
-                            antifall3:Destroy()
-                            antifall3.Velocity = Vector3.new()
-                            antifall3.MaxForce = Vector3.new()
-                        end
+                            if v.Humanoid.Health > 0 and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and GetDistance(v:GetModelCFrame() * FarmModes) < 10 then
+                                NearestMobs = true
+                            elseif v.Humanoid.Health <= 0 or not v:FindFirstChild("Humanoid") and GetDistance(v:GetModelCFrame() * FarmModes) > 10 then
+                                NearestMobs = false
+                            end
+                        until not getgenv().autoboss or not v.Parent or v.Humanoid.Health <= 0 or not v:IsDescendantOf(workspace)
+                        NearestMobs = false
                     end
+                else
+                    antifall3:Destroy()
+                end
+                if getgenv().autoboss == false then
+                    TweenFa:Cancel()
                 end
             end)
         end
@@ -1888,7 +1852,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
     Farmsetting:CreateDropdown({
         Name = "Farm Method",
         Options = { "Above", "Below", "Behind", "Ahead" },
-        CurrentOption = "Above",
+        CurrentOption = "Below",
         MultiSelection = false,
         Flag = "Dropdown1",
         Callback = function(Option)
@@ -1898,7 +1862,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
 
     Farmsetting:CreateSlider({
         Name = "Farm Distance",
-        Range = { 0, 20 },
+        Range = { 0, 10 },
         Increment = 1,
         Suffix = "Studs",
         CurrentValue = 5,
@@ -1997,48 +1961,6 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
 
     --whitescreen
     local rn = game:GetService("RunService")
-
-    --autonpc
-    task.spawn(function()
-        while task.wait() do
-            pcall(function()
-                if getgenv().autonpc then
-                    if not LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
-                        antifall3 = Instance.new("BodyVelocity", LP.Character.HumanoidRootPart)
-                        antifall3.Velocity = Vector3.new(0, 0, 0)
-                        antifall3.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-                    elseif LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
-                        for i, v in pairs(game:GetService("Workspace").Mobs:GetDescendants()) do
-                            if v:IsA("Model") and v:FindFirstChild("Humanoid") then
-                                if v.Humanoid.Health > 0 then
-                                    local distance = GetDistance(v:GetModelCFrame() * FarmModes1)
-                                    repeat
-                                        task.wait()
-                                        if distance < 10 then
-                                            if TweenFa then
-                                                TweenFa:Cancel()
-                                                wait(0.1)
-                                            end
-                                            LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes1
-                                        else
-                                            TweenFa = Tween(v:GetModelCFrame() * FarmModes1)
-                                        end
-                                    until not getgenv().auto or v.Humanoid.Health <= 0
-                                end
-                            end
-                        end
-                        task.wait(1)
-                    else
-                        if autonpc == false then
-                            antifall3:Destroy()
-                            antifall3.Velocity = Vector3.new()
-                            antifall3.MaxForce = Vector3.new()
-                        end
-                    end
-                end
-            end)
-        end
-    end)
 
     --anti idle
     repeat wait() until game:IsLoaded()
@@ -2281,6 +2203,8 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
 
     --autoboss
     getgenv().tweenspeed = 150;
+    getgenv().ABfarmdistance = 5;
+    getgenv().ABFarmMethod = "Above"
 
     local function GetDistance(Endpoint)
         if typeof(Endpoint) == "Instance" then
@@ -2294,6 +2218,7 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
         return Magnitude
     end
 
+
     function Tween(Endpoint)
         if typeof(Endpoint) == "Instance" then
             Endpoint = Endpoint.CFrame
@@ -2301,8 +2226,8 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
         local TweenFunc = {}
         local Distance = GetDistance(Endpoint)
         local TweenInfo = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart,
-            TweenInfo.new(Distance / tweenspeed, Enum.EasingStyle.Linear),
-            { CFrame = Endpoint * CFrame.fromAxisAngle(Vector3.new(1, 1, 1), math.rad(0)) })
+            TweenInfo.new(Distance / getgenv().tweenspeed, Enum.EasingStyle.Linear),
+            { CFrame = Endpoint * CFrame.fromAxisAngle(Vector3.new(1, 0, 0), math.rad(0)) })
         TweenInfo:Play()
         function TweenFunc:Cancel()
             TweenInfo:Cancel()
@@ -2317,24 +2242,33 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
         return TweenFunc
     end
 
-    task.spawn(function()
-        while true do
+    spawn(function()
+        while wait() do
             pcall(function()
-                if getgenv().ABFarmMethod == "Above" then
-                    FarmModes1 = CFrame.new(0, getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-                elseif getgenv().ABFarmMethod == "Below" then
-                    FarmModes1 = CFrame.new(0, -getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(90), 0, 0)
-                elseif getgenv().ABFarmMethod == "Behind" then
-                    FarmModes1 = CFrame.new(0, 0, getgenv().ABfarmdistance)
-                elseif getgenv().ABFarmMethod == "Ahead" then
-                    FarmModes1 = CFrame.new(0, 0, -getgenv().ABfarmdistance)
+                SkillActive = AutoUseSkills and (FarmBoss and NearestMobs) or
+                    AutoUseSkills and (FarmQuest and NearestMobs) or
+                    AutoUseSkills and (FarmMob and NearestMobs) or AutoUseSkills and (AllBosses and NearestMobs)
+                if FarmMethod == "Above" then
+                    FarmModes = CFrame.new(0, getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                elseif FarmMethod == "Below" then
+                    FarmModes = CFrame.new(0, -getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(90), 0, 0)
+                elseif FarmMethod == "Behind" then
+                    FarmModes = CFrame.new(0, 0, getgenv().ABfarmdistance)
+                elseif FarmMethod == "Front" then
+                    FarmModes = CFrame.new(0, 0, -getgenv().ABfarmdistance)
                 end
-                task.wait()
+                for i, v in pairs(LP.PlayerGui.MainGuis.Items.Scroll:GetChildren()) do
+                    Insert = true
+                    if v.ClassName == "Frame" and v.Name ~= "Health Elixir" and v.Name ~= "Health Regen Elixir" and v.Name ~= "Stamina Elixir" and v.Name ~= "Bandage" then
+                        for i, v2 in pairs(invTable) do if v2 == v.Name then Insert = false end end
+                        if Insert == true then table.insert(invTable, v.Name) end
+                    end
+                end
             end)
         end
     end)
 
-    task.spawn(function()
+    spawn(function()
         while task.wait() do
             pcall(function()
                 if getgenv().autoboss then
@@ -2343,49 +2277,45 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
                         antifall3.Velocity = Vector3.new(0, 0, 0)
                         antifall3.MaxForce = Vector3.new(9e9, 9e9, 9e9)
                     elseif LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
-                        for i, v in pairs(game:GetService("Workspace").Mobs.Bosses:GetDescendants()) do
-                            if v:IsA("Model") and v:FindFirstChild("Humanoid") then
-                                if v.Humanoid.Health > 0 then
-                                    local distance = GetDistance(v:GetModelCFrame() * FarmModes1)
-                                    if autoboss then
-                                        spawn(function()
-                                            game:GetService("RunService").Stepped:Connect(function()
-                                                for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
-                                                    if v:IsA("BasePart") then
-                                                        v.CanCollide = false
-                                                    end
-                                                    if v:IsA("Humanoid") then
-                                                        v:ChangeState(11)
-                                                    end
-                                                end
-                                            end)
-                                        end)
-                                    else
-                                        break
-                                    end
-                                    repeat
-                                        task.wait()
-                                        if distance < 25 and distance < 150 then
-                                            if TweenFa then
-                                                TweenFa:Cancel()
-                                                wait(0.1)
-                                            end
-                                            LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes1
-                                        else
-                                            TweenFa = Tween(v:GetModelCFrame() * FarmModes1)
+                        local v = GetNearestBoss()
+                        if autoboss then
+                            spawn(function()
+                                game:GetService("RunService").Stepped:Connect(function()
+                                    for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+                                        if v:IsA("BasePart") then
+                                            v.CanCollide = false
                                         end
-                                    until not getgenv().autoboss or v.Humanoid.Health <= 0
+                                        if v:IsA("Humanoid") then
+                                            v:ChangeState(11)
+                                        end
+                                    end
+                                end)
+                            end)
+                        end
+                        repeat
+                            task.wait()
+                            if GetDistance(v:GetModelCFrame() * FarmModes) < 25 and GetDistance(v:GetModelCFrame() * FarmModes) < 150 then
+                                if TweenFa then
+                                    TweenFa:Cancel()
+                                    wait(.1)
                                 end
+                                LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes
+                            else
+                                TweenFa = Tween(v:GetModelCFrame() * FarmModes)
                             end
-                        end
-                        task.wait(1)
-                    else
-                        if autoboss == false and autodung == false and automugen == false and autolily == false and eatsoul == false and autonpc == false then
-                            antifall3:Destroy()
-                            antifall3.Velocity = Vector3.new()
-                            antifall3.MaxForce = Vector3.new()
-                        end
+                            if v.Humanoid.Health > 0 and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and GetDistance(v:GetModelCFrame() * FarmModes) < 10 then
+                                NearestMobs = true
+                            elseif v.Humanoid.Health <= 0 or not v:FindFirstChild("Humanoid") and GetDistance(v:GetModelCFrame() * FarmModes) > 10 then
+                                NearestMobs = false
+                            end
+                        until not getgenv().autoboss or not v.Parent or v.Humanoid.Health <= 0 or not v:IsDescendantOf(workspace)
+                        NearestMobs = false
                     end
+                else
+                    antifall3:Destroy()
+                end
+                if getgenv().autoboss == false then
+                    TweenFa:Cancel()
                 end
             end)
         end
