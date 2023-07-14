@@ -1888,7 +1888,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
     Farmsetting:CreateDropdown({
         Name = "Farm Method",
         Options = { "Above", "Below", "Behind", "Ahead" },
-        CurrentOption = "Below",
+        CurrentOption = "Above",
         MultiSelection = false,
         Flag = "Dropdown1",
         Callback = function(Option)
@@ -3675,15 +3675,6 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
         Flag = "Toggle15",
         Callback = function(state)
             getgenv().autoboss = state;
-        end
-    })
-
-    Farmsetting:CreateToggle({
-        Name = "Farm All NPC",
-        CurrentValue = false,
-        Flag = "Toggle46",
-        Callback = function(state)
-            getgenv().autonpc = state;
         end
     })
 
