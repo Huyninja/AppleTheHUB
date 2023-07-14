@@ -5860,6 +5860,16 @@ else
         end
     end)
 
+    --wardrums
+    function Wardrums()
+        spawn(function()
+            while warfans do
+                ReplStor:WaitForChild("Remotes"):WaitForChild("war_Drums_remote"):FireServer(true)
+                wait(19)
+            end
+        end)
+    end
+
     -- god mode
     spawn(function()
         while task.wait() do
