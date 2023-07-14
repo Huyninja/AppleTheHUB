@@ -161,7 +161,6 @@ if placeId == 6152116144 or placeId == 13883279773 then
     anti_cheat2.Disabled = true
 
     --auto lily
-    getgenv().speed = 150
     getgenv().delay = 0.5
 
     local RunService = game:GetService("RunService");
@@ -1292,25 +1291,18 @@ if placeId == 6152116144 or placeId == 13883279773 then
                                 local Handle_Initiate_S_ = game.ReplicatedStorage.Remotes.To_Server.Handle_Initiate_S_
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                             end
                         end
                     end)
@@ -1360,7 +1352,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
                             end
                         end
                     end)
-                    wait()
+                    wait(0.05)
                 end
             end
         end
@@ -1385,25 +1377,18 @@ if placeId == 6152116144 or placeId == 13883279773 then
                                 local Handle_Initiate_S_ = game.ReplicatedStorage.Remotes.To_Server.Handle_Initiate_S_
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                             end
                         end
                     end)
@@ -1453,7 +1438,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
                             end
                         end
                     end)
-                    wait()
+                    wait(0.06)
                 end
             end
         end
@@ -1911,7 +1896,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
 
     Farmsetting:CreateSlider({
         Name = "Farm Distance",
-        Range = { 0, 20 },
+        Range = { 0, 10 },
         Increment = 1,
         Suffix = "Studs",
         CurrentValue = 5,
