@@ -1898,7 +1898,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
 
     Farmsetting:CreateSlider({
         Name = "Farm Distance",
-        Range = { 0, 10 },
+        Range = { 0, 20 },
         Increment = 1,
         Suffix = "Studs",
         CurrentValue = 5,
