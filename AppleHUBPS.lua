@@ -1988,7 +1988,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
 
     Farmsetting:CreateSlider({
         Name = "Farm Distance",
-        Range = { 0, 20 },
+        Range = { 0, 100 },
         Increment = 1,
         Suffix = "Studs",
         CurrentValue = 5,
@@ -3832,7 +3832,7 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
     getgenv().ABfarmdistance = 5
     Farmsetting:CreateSlider({
         Name = "Farm Distance",
-        Range = { 0, 20 },
+        Range = { 0, 100 },
         Increment = 1,
         Suffix = "Studs",
         CurrentValue = 5,
@@ -5530,7 +5530,7 @@ elseif placeId == 11468034852 then
     getgenv().AMfarmdistance = 5;
     Mugen:CreateSlider({
         Name = "Farm Distance",
-        Range = { 0, 20 },
+        Range = { 0, 100 },
         Increment = 1,
         Suffix = "Studs",
         CurrentValue = 5,
@@ -6931,7 +6931,7 @@ else
     getgenv().ADfarmdistance = 5
     Dungeon:CreateSlider({
         Name = "Farm Distance",
-        Range = { 0, 20 },
+        Range = { 0, 100 },
         Increment = 1,
         Suffix = "Studs",
         CurrentValue = 5,
