@@ -44,6 +44,22 @@ if placeId == 6152116144 or placeId == 13883279773 then
     local ReplStor = game:GetService("ReplicatedStorage");
     local LP = game.Players.LocalPlayer;
 
+    --no clip
+    if autoboss then
+        spawn(function()
+            game:GetService("RunService").Stepped:Connect(function()
+                for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.CanCollide = false
+                    end
+                    if v:IsA("Humanoid") then
+                        v:ChangeState(11)
+                    end
+                end
+            end)
+        end)
+    end
+
     --server hop
     local HttpService, TPService = game:GetService("HttpService"), game:GetService("TeleportService")
     local ServersToTP = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" ..
@@ -369,43 +385,129 @@ if placeId == 6152116144 or placeId == 13883279773 then
 
     function revtexture()
         if reducelag3 then
-            local decalsyeeted = true
-            local g = game
-            local w = g.Workspace
-            local l = g.Lighting
-            local t = w.Terrain
-            t.WaterWaveSize = 0
-            t.WaterWaveSpeed = 0
-            t.WaterReflectance = 0
-            t.WaterTransparency = 0
-            l.GlobalShadows = false
-            l.FogEnd = 9e9
-            l.Brightness = 0
-            settings().Rendering.QualityLevel = "Level01"
-            for i, v in pairs(g:GetDescendants()) do
-                if v:IsA("Part") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
-                    v.Material = "Plastic"
-                    v.Reflectance = 0
-                elseif v:IsA("Decal") or v:IsA("Texture") and decalsyeeted then
-                    v.Transparency = 1
-                elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                    v.Lifetime = NumberRange.new(0)
-                elseif v:IsA("Explosion") then
-                    v.BlastPressure = 1
-                    v.BlastRadius = 1
-                elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") then
-                    v.Enabled = false
-                elseif v:IsA("MeshPart") then
-                    v.Material = "Plastic"
-                    v.Reflectance = 0
-                    v.TextureID = 10385902758728957
+            local decalsYeeted = true
+            local workspace = game.Workspace
+            local lighting = game.Lighting
+            local terrain = workspace.Terrain
+
+            -- Improve performance by setting hidden properties only once
+            local lightingTechnology = 2
+            local decorationEnabled = false
+            sethiddenproperty(lighting, "Technology", lightingTechnology)
+            sethiddenproperty(terrain, "Decoration", decorationEnabled)
+
+            -- Use table instead of separate settings
+            local terrainSettings = {
+                WaterWaveSize = 0,
+                WaterWaveSpeed = 0,
+                WaterReflectance = 0,
+                WaterTransparency = 0,
+            }
+            for setting, value in pairs(terrainSettings) do
+                terrain[setting] = value
+            end
+
+            lighting.GlobalShadows = 0
+            lighting.FogEnd = 9e9
+            lighting.Brightness = 0
+            settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+
+            -- Consolidate common operations into functions for better readability and maintainability
+            local function handleBasePart(part)
+                part.Material = Enum.Material.Plastic
+                part.Reflectance = 0
+            end
+
+            local function handleDecalOrTexture(decalOrTexture)
+                if decalsYeeted then
+                    decalOrTexture.Transparency = 1
                 end
             end
-            for i, e in pairs(l:GetChildren()) do
-                if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
-                    e.Enabled = false
+
+            local function handleParticleEmitterOrTrail(emitterOrTrail)
+                emitterOrTrail.Lifetime = NumberRange.new(0)
+            end
+
+            local function handleExplosion(explosion)
+                explosion.BlastPressure = 1
+                explosion.BlastRadius = 1
+            end
+
+            local function handleMeshPart(meshPart)
+                if decalsYeeted then
+                    meshPart.Material = Enum.Material.Plastic
+                    meshPart.Reflectance = 0
+                    meshPart.TextureID = 10385902758728957
                 end
             end
+
+            local function handleSpecialMesh(specialMesh)
+                if decalsYeeted then
+                    specialMesh.TextureId = 0
+                end
+            end
+
+            local function handleShirtGraphic(shirtGraphic)
+                if decalsYeeted then
+                    shirtGraphic.Graphic = ""
+                end
+            end
+
+            local function handleClothing(clothing)
+                if decalsYeeted then
+                    if clothing:IsA("Shirt") then
+                        clothing.ShirtTemplate = ""
+                    elseif clothing:IsA("Pants") then
+                        clothing.PantsTemplate = ""
+                    end
+                end
+            end
+
+            -- Handle existing descendants
+            for _, descendant in pairs(workspace:GetDescendants()) do
+                if descendant:IsA("BasePart") and not descendant:IsA("MeshPart") then
+                    handleBasePart(descendant)
+                elseif descendant:IsA("Decal") or descendant:IsA("Texture") then
+                    handleDecalOrTexture(descendant)
+                elseif descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+                    handleParticleEmitterOrTrail(descendant)
+                elseif descendant:IsA("Explosion") then
+                    handleExplosion(descendant)
+                elseif descendant:IsA("Fire") or descendant:IsA("SpotLight") or descendant:IsA("Smoke") or descendant:IsA("Sparkles") then
+                    descendant.Enabled = false
+                elseif descendant:IsA("MeshPart") then
+                    handleMeshPart(descendant)
+                elseif descendant:IsA("SpecialMesh") then
+                    handleSpecialMesh(descendant)
+                elseif descendant:IsA("ShirtGraphic") then
+                    handleShirtGraphic(descendant)
+                elseif descendant:IsA("Shirt") or descendant:IsA("Pants") then
+                    handleClothing(descendant)
+                end
+            end
+
+            -- Handle new descendants
+            workspace.DescendantAdded:Connect(function(descendant)
+                if descendant:IsA("BasePart") and not descendant:IsA("MeshPart") then
+                    handleBasePart(descendant)
+                elseif descendant:IsA("Decal") or descendant:IsA("Texture") then
+                    handleDecalOrTexture(descendant)
+                elseif descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+                    handleParticleEmitterOrTrail(descendant)
+                elseif descendant:IsA("Explosion") then
+                    handleExplosion(descendant)
+                elseif descendant:IsA("Fire") or descendant:IsA("SpotLight") or descendant:IsA("Smoke") or descendant:IsA("Sparkles") then
+                    descendant.Enabled = false
+                elseif descendant:IsA("MeshPart") then
+                    handleMeshPart(descendant)
+                elseif descendant:IsA("SpecialMesh") then
+                    handleSpecialMesh(descendant)
+                elseif descendant:IsA("ShirtGraphic") then
+                    handleShirtGraphic(descendant)
+                elseif descendant:IsA("Shirt") or descendant:IsA("Pants") then
+                    handleClothing(descendant)
+                end
+            end)
         end
     end
 
@@ -449,8 +551,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
 
     --autoboss
     getgenv().tweenspeed = 150;
-    getgenv().ABfarmdistance = 5;
-    getgenv().ABFarmMethod = "Above"
+    getgenv().farmdistance = 5;
 
     local function GetDistance(Endpoint)
         if typeof(Endpoint) == "Instance" then
@@ -464,7 +565,6 @@ if placeId == 6152116144 or placeId == 13883279773 then
         return Magnitude
     end
 
-
     function Tween(Endpoint)
         if typeof(Endpoint) == "Instance" then
             Endpoint = Endpoint.CFrame
@@ -472,7 +572,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
         local TweenFunc = {}
         local Distance = GetDistance(Endpoint)
         local TweenInfo = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart,
-            TweenInfo.new(Distance / getgenv().tweenspeed, Enum.EasingStyle.Linear),
+            TweenInfo.new(Distance / tweenspeed, Enum.EasingStyle.Linear),
             { CFrame = Endpoint * CFrame.fromAxisAngle(Vector3.new(1, 0, 0), math.rad(0)) })
         TweenInfo:Play()
         function TweenFunc:Cancel()
@@ -488,33 +588,23 @@ if placeId == 6152116144 or placeId == 13883279773 then
         return TweenFunc
     end
 
-    spawn(function()
-        while wait() do
-            pcall(function()
-                SkillActive = AutoUseSkills and (FarmBoss and NearestMobs) or
-                    AutoUseSkills and (FarmQuest and NearestMobs) or
-                    AutoUseSkills and (FarmMob and NearestMobs) or AutoUseSkills and (AllBosses and NearestMobs)
-                if FarmMethod == "Above" then
-                    FarmModes = CFrame.new(0, getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-                elseif FarmMethod == "Below" then
-                    FarmModes = CFrame.new(0, -getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(90), 0, 0)
-                elseif FarmMethod == "Behind" then
-                    FarmModes = CFrame.new(0, 0, getgenv().ABfarmdistance)
-                elseif FarmMethod == "Front" then
-                    FarmModes = CFrame.new(0, 0, -getgenv().ABfarmdistance)
-                end
-                for i, v in pairs(LP.PlayerGui.MainGuis.Items.Scroll:GetChildren()) do
-                    Insert = true
-                    if v.ClassName == "Frame" and v.Name ~= "Health Elixir" and v.Name ~= "Health Regen Elixir" and v.Name ~= "Stamina Elixir" and v.Name ~= "Bandage" then
-                        for i, v2 in pairs(invTable) do if v2 == v.Name then Insert = false end end
-                        if Insert == true then table.insert(invTable, v.Name) end
-                    end
-                end
-            end)
-        end
-    end)
 
-    spawn(function()
+    task.spawn(function()
+        while task.wait() do
+            if FarmMethod == "Above" then
+                FarmModes = CFrame.new(0, farmdistance, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+            elseif FarmMethod == "Below" then
+                FarmModes = CFrame.new(0, -farmdistance, 0) * CFrame.Angles(math.rad(90), 0, 0)
+            elseif FarmMethod == "Behind" then
+                FarmModes = CFrame.new(0, 0, farmdistance)
+            elseif FarmMethod == "Ahead" then
+                FarmModes = CFrame.new(0, 0, -farmdistance)
+            end
+            task.wait()
+        end
+    end)        
+
+    task.spawn(function()
         while task.wait() do
             pcall(function()
                 if getgenv().autoboss then
@@ -523,44 +613,52 @@ if placeId == 6152116144 or placeId == 13883279773 then
                         antifall3.Velocity = Vector3.new(0, 0, 0)
                         antifall3.MaxForce = Vector3.new(9e9, 9e9, 9e9)
                     elseif LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
-                        local v = GetNearestBoss()
-                        if autoboss then
-                            spawn(function()
-                                game:GetService("RunService").Stepped:Connect(function()
-                                    for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
-                                        if v:IsA("BasePart") then
-                                            v.CanCollide = false
-                                        end
-                                        if v:IsA("Humanoid") then
-                                            v:ChangeState(11)
-                                        end
+                        for i, v in pairs(game:GetService("Workspace").Mobs.Bosses:GetDescendants()) do
+                            if v:IsA("Model") and v:FindFirstChild("Humanoid") then
+                                if v.Humanoid.Health > 0 then
+                                    local distance = GetDistance(v:GetModelCFrame() * FarmModes)
+                                    if autoboss then
+                                        spawn(function()
+                                            game:GetService("RunService").Stepped:Connect(function()
+                                                for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+                                                    if v:IsA("BasePart") then
+                                                        v.CanCollide = false
+                                                    end
+                                                    if v:IsA("Humanoid") then
+                                                        v:ChangeState(11)
+                                                    end
+                                                end
+                                            end)
+                                        end)
                                     end
-                                end)
-                            end)
-                        end
-                        repeat
-                            task.wait()
-                            if GetDistance(v:GetModelCFrame() * FarmModes) < 25 and GetDistance(v:GetModelCFrame() * FarmModes) < 150 then
-                                if TweenFa then
-                                    TweenFa:Cancel()
-                                    wait(.1)
+                                    repeat
+                                        task.wait()
+                                        if distance < 25 and distance < 150 then
+                                            if TweenFa then
+                                                TweenFa:Cancel()
+                                                wait(.1)
+                                            end
+                                            LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes
+                                        else
+                                            TweenFa = Tween(v:GetModelCFrame() * FarmModes)
+                                        end
+                                        if v.Humanoid.Health > 0 and v:FindFirstChild("HumanoidRootPart") and distance < 10 then
+                                            NearestMobs = true
+                                        elseif v.Humanoid.Health <= 0 or not v:FindFirstChild("Humanoid") and distance > 10 then
+                                            NearestMobs = false
+                                        end
+                                    until not getgenv().autoboss or not v.Parent or v.Humanoid.Health <= 0 or not v:IsDescendantOf(workspace)
+                                    NearestMobs = false
                                 end
-                                LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes
-                            else
-                                TweenFa = Tween(v:GetModelCFrame() * FarmModes)
                             end
-                            if v.Humanoid.Health > 0 and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and GetDistance(v:GetModelCFrame() * FarmModes) < 10 then
-                                NearestMobs = true
-                            elseif v.Humanoid.Health <= 0 or not v:FindFirstChild("Humanoid") and GetDistance(v:GetModelCFrame() * FarmModes) > 10 then
-                                NearestMobs = false
-                            end
-                        until not getgenv().autoboss or not v.Parent or v.Humanoid.Health <= 0 or not v:IsDescendantOf(workspace)
-                        NearestMobs = false
+                        end
                     end
                 else
-                    antifall3:Destroy()
+                    if antifall3 then
+                        antifall3:Destroy()
+                    end
                 end
-                if getgenv().autoboss == false then
+                if getgenv().autoboss == false and TweenFa then
                     TweenFa:Cancel()
                 end
             end)
@@ -1318,7 +1416,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
                             end
                         end
                     end)
-                    wait(0.05)
+                    wait()
                 end
             end
         end
@@ -1404,7 +1502,7 @@ if placeId == 6152116144 or placeId == 13883279773 then
                             end
                         end
                     end)
-                    wait(0.06)
+                    wait()
                 end
             end
         end
@@ -1417,8 +1515,11 @@ if placeId == 6152116144 or placeId == 13883279773 then
         CurrentValue = false,
         Flag = "Toggle6",
         Callback = function(state)
-            getgenv().autoloot = state;
             loot()
+            while true do
+                getgenv().autoloot = state;
+                wait(1)
+            end
         end
     })
 
@@ -1849,26 +1950,51 @@ if placeId == 6152116144 or placeId == 13883279773 then
 
     local Section = Farmsetting:CreateSection("Boss Farm 1/2")
 
-    Farmsetting:CreateDropdown({
-        Name = "Farm Method",
-        Options = { "Above", "Below", "Behind", "Ahead" },
-        CurrentOption = "Below",
-        MultiSelection = false,
-        Flag = "Dropdown1",
-        Callback = function(Option)
-            getgenv().ABFarmMethod = Option
-        end,
+    Farmsetting:CreateToggle({
+        Name = "Farm Method(Above)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().FarmMethod = "Above";
+        end
+    })
+
+    Farmsetting:CreateToggle({
+        Name = "Farm Method(Below)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().FarmMethod = "Below";
+        end
+    })
+
+    Farmsetting:CreateToggle({
+        Name = "Farm Method(Behind)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().FarmMethod = "Behind";
+        end
+    })
+
+    Farmsetting:CreateToggle({
+        Name = "Farm Method(Ahead)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().FarmMethod = "Ahead";
+        end
     })
 
     Farmsetting:CreateSlider({
         Name = "Farm Distance",
-        Range = { 0, 10 },
+        Range = { 0, 20 },
         Increment = 1,
         Suffix = "Studs",
         CurrentValue = 5,
         Flag = "Slider5",
         Callback = function(state)
-            getgenv().ABfarmdistance = state
+            getgenv().farmdistance = state
         end,
     })
 
@@ -1878,15 +2004,6 @@ if placeId == 6152116144 or placeId == 13883279773 then
         Flag = "Toggle15",
         Callback = function(state)
             getgenv().autoboss = state;
-        end
-    })
-
-    Farmsetting:CreateToggle({
-        Name = "Farm All NPC",
-        CurrentValue = false,
-        Flag = "Toggle46",
-        Callback = function(state)
-            getgenv().autonpc = state;
         end
     })
 elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 13883059853 then
@@ -1933,6 +2050,22 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
     local client = game:GetService("Players").LocalPlayer;
     local ReplStor = game:GetService("ReplicatedStorage");
     local LP = game.Players.LocalPlayer;
+
+    --noclip
+    if autoboss then
+        spawn(function()
+            game:GetService("RunService").Stepped:Connect(function()
+                for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.CanCollide = false
+                    end
+                    if v:IsA("Humanoid") then
+                        v:ChangeState(11)
+                    end
+                end
+            end)
+        end)
+    end
 
     --server hop
     local HttpService, TPService = game:GetService("HttpService"), game:GetService("TeleportService")
@@ -2123,43 +2256,129 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
 
     function revtexture()
         if reducelag3 then
-            local decalsyeeted = true
-            local g = game
-            local w = g.Workspace
-            local l = g.Lighting
-            local t = w.Terrain
-            t.WaterWaveSize = 0
-            t.WaterWaveSpeed = 0
-            t.WaterReflectance = 0
-            t.WaterTransparency = 0
-            l.GlobalShadows = false
-            l.FogEnd = 9e9
-            l.Brightness = 0
-            settings().Rendering.QualityLevel = "Level01"
-            for i, v in pairs(g:GetDescendants()) do
-                if v:IsA("Part") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
-                    v.Material = "Plastic"
-                    v.Reflectance = 0
-                elseif v:IsA("Decal") or v:IsA("Texture") and decalsyeeted then
-                    v.Transparency = 1
-                elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                    v.Lifetime = NumberRange.new(0)
-                elseif v:IsA("Explosion") then
-                    v.BlastPressure = 1
-                    v.BlastRadius = 1
-                elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") then
-                    v.Enabled = false
-                elseif v:IsA("MeshPart") then
-                    v.Material = "Plastic"
-                    v.Reflectance = 0
-                    v.TextureID = 10385902758728957
+            local decalsYeeted = true
+            local workspace = game.Workspace
+            local lighting = game.Lighting
+            local terrain = workspace.Terrain
+
+            -- Improve performance by setting hidden properties only once
+            local lightingTechnology = 2
+            local decorationEnabled = false
+            sethiddenproperty(lighting, "Technology", lightingTechnology)
+            sethiddenproperty(terrain, "Decoration", decorationEnabled)
+
+            -- Use table instead of separate settings
+            local terrainSettings = {
+                WaterWaveSize = 0,
+                WaterWaveSpeed = 0,
+                WaterReflectance = 0,
+                WaterTransparency = 0,
+            }
+            for setting, value in pairs(terrainSettings) do
+                terrain[setting] = value
+            end
+
+            lighting.GlobalShadows = 0
+            lighting.FogEnd = 9e9
+            lighting.Brightness = 0
+            settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+
+            -- Consolidate common operations into functions for better readability and maintainability
+            local function handleBasePart(part)
+                part.Material = Enum.Material.Plastic
+                part.Reflectance = 0
+            end
+
+            local function handleDecalOrTexture(decalOrTexture)
+                if decalsYeeted then
+                    decalOrTexture.Transparency = 1
                 end
             end
-            for i, e in pairs(l:GetChildren()) do
-                if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
-                    e.Enabled = false
+
+            local function handleParticleEmitterOrTrail(emitterOrTrail)
+                emitterOrTrail.Lifetime = NumberRange.new(0)
+            end
+
+            local function handleExplosion(explosion)
+                explosion.BlastPressure = 1
+                explosion.BlastRadius = 1
+            end
+
+            local function handleMeshPart(meshPart)
+                if decalsYeeted then
+                    meshPart.Material = Enum.Material.Plastic
+                    meshPart.Reflectance = 0
+                    meshPart.TextureID = 10385902758728957
                 end
             end
+
+            local function handleSpecialMesh(specialMesh)
+                if decalsYeeted then
+                    specialMesh.TextureId = 0
+                end
+            end
+
+            local function handleShirtGraphic(shirtGraphic)
+                if decalsYeeted then
+                    shirtGraphic.Graphic = ""
+                end
+            end
+
+            local function handleClothing(clothing)
+                if decalsYeeted then
+                    if clothing:IsA("Shirt") then
+                        clothing.ShirtTemplate = ""
+                    elseif clothing:IsA("Pants") then
+                        clothing.PantsTemplate = ""
+                    end
+                end
+            end
+
+            -- Handle existing descendants
+            for _, descendant in pairs(workspace:GetDescendants()) do
+                if descendant:IsA("BasePart") and not descendant:IsA("MeshPart") then
+                    handleBasePart(descendant)
+                elseif descendant:IsA("Decal") or descendant:IsA("Texture") then
+                    handleDecalOrTexture(descendant)
+                elseif descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+                    handleParticleEmitterOrTrail(descendant)
+                elseif descendant:IsA("Explosion") then
+                    handleExplosion(descendant)
+                elseif descendant:IsA("Fire") or descendant:IsA("SpotLight") or descendant:IsA("Smoke") or descendant:IsA("Sparkles") then
+                    descendant.Enabled = false
+                elseif descendant:IsA("MeshPart") then
+                    handleMeshPart(descendant)
+                elseif descendant:IsA("SpecialMesh") then
+                    handleSpecialMesh(descendant)
+                elseif descendant:IsA("ShirtGraphic") then
+                    handleShirtGraphic(descendant)
+                elseif descendant:IsA("Shirt") or descendant:IsA("Pants") then
+                    handleClothing(descendant)
+                end
+            end
+
+            -- Handle new descendants
+            workspace.DescendantAdded:Connect(function(descendant)
+                if descendant:IsA("BasePart") and not descendant:IsA("MeshPart") then
+                    handleBasePart(descendant)
+                elseif descendant:IsA("Decal") or descendant:IsA("Texture") then
+                    handleDecalOrTexture(descendant)
+                elseif descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+                    handleParticleEmitterOrTrail(descendant)
+                elseif descendant:IsA("Explosion") then
+                    handleExplosion(descendant)
+                elseif descendant:IsA("Fire") or descendant:IsA("SpotLight") or descendant:IsA("Smoke") or descendant:IsA("Sparkles") then
+                    descendant.Enabled = false
+                elseif descendant:IsA("MeshPart") then
+                    handleMeshPart(descendant)
+                elseif descendant:IsA("SpecialMesh") then
+                    handleSpecialMesh(descendant)
+                elseif descendant:IsA("ShirtGraphic") then
+                    handleShirtGraphic(descendant)
+                elseif descendant:IsA("Shirt") or descendant:IsA("Pants") then
+                    handleClothing(descendant)
+                end
+            end)
         end
     end
 
@@ -2203,8 +2422,7 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
 
     --autoboss
     getgenv().tweenspeed = 150;
-    getgenv().ABfarmdistance = 5;
-    getgenv().ABFarmMethod = "Above"
+    getgenv().farmdistance = 5;
 
     local function GetDistance(Endpoint)
         if typeof(Endpoint) == "Instance" then
@@ -2218,7 +2436,6 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
         return Magnitude
     end
 
-
     function Tween(Endpoint)
         if typeof(Endpoint) == "Instance" then
             Endpoint = Endpoint.CFrame
@@ -2226,7 +2443,7 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
         local TweenFunc = {}
         local Distance = GetDistance(Endpoint)
         local TweenInfo = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart,
-            TweenInfo.new(Distance / getgenv().tweenspeed, Enum.EasingStyle.Linear),
+            TweenInfo.new(Distance / tweenspeed, Enum.EasingStyle.Linear),
             { CFrame = Endpoint * CFrame.fromAxisAngle(Vector3.new(1, 0, 0), math.rad(0)) })
         TweenInfo:Play()
         function TweenFunc:Cancel()
@@ -2242,33 +2459,24 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
         return TweenFunc
     end
 
-    spawn(function()
-        while wait() do
-            pcall(function()
-                SkillActive = AutoUseSkills and (FarmBoss and NearestMobs) or
-                    AutoUseSkills and (FarmQuest and NearestMobs) or
-                    AutoUseSkills and (FarmMob and NearestMobs) or AutoUseSkills and (AllBosses and NearestMobs)
-                if FarmMethod == "Above" then
-                    FarmModes = CFrame.new(0, getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-                elseif FarmMethod == "Below" then
-                    FarmModes = CFrame.new(0, -getgenv().ABfarmdistance, 0) * CFrame.Angles(math.rad(90), 0, 0)
-                elseif FarmMethod == "Behind" then
-                    FarmModes = CFrame.new(0, 0, getgenv().ABfarmdistance)
-                elseif FarmMethod == "Front" then
-                    FarmModes = CFrame.new(0, 0, -getgenv().ABfarmdistance)
-                end
-                for i, v in pairs(LP.PlayerGui.MainGuis.Items.Scroll:GetChildren()) do
-                    Insert = true
-                    if v.ClassName == "Frame" and v.Name ~= "Health Elixir" and v.Name ~= "Health Regen Elixir" and v.Name ~= "Stamina Elixir" and v.Name ~= "Bandage" then
-                        for i, v2 in pairs(invTable) do if v2 == v.Name then Insert = false end end
-                        if Insert == true then table.insert(invTable, v.Name) end
-                    end
-                end
-            end)
+    -- Auto Farm Method
+    task.spawn(function()
+        while task.wait() do
+            if getgenv().FarmMethod == "Above" then
+                FarmModes = CFrame.new(0, farmdistance, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+            elseif getgenv().FarmMethod == "Below" then
+                FarmModes = CFrame.new(0, -farmdistance, 0) * CFrame.Angles(math.rad(90), 0, 0)
+            elseif getgenv().FarmMethod == "Behind" then
+                FarmModes = CFrame.new(0, 0, farmdistance)
+            elseif getgenv().FarmMethod == "Ahead" then
+                FarmModes = CFrame.new(0, 0, -farmdistance)
+            end
+            print(getgenv().FarmMethod)
+            task.wait(1)
         end
     end)
 
-    spawn(function()
+    task.spawn(function()
         while task.wait() do
             pcall(function()
                 if getgenv().autoboss then
@@ -2277,44 +2485,52 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
                         antifall3.Velocity = Vector3.new(0, 0, 0)
                         antifall3.MaxForce = Vector3.new(9e9, 9e9, 9e9)
                     elseif LP.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
-                        local v = GetNearestBoss()
-                        if autoboss then
-                            spawn(function()
-                                game:GetService("RunService").Stepped:Connect(function()
-                                    for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
-                                        if v:IsA("BasePart") then
-                                            v.CanCollide = false
-                                        end
-                                        if v:IsA("Humanoid") then
-                                            v:ChangeState(11)
-                                        end
+                        for i, v in pairs(game:GetService("Workspace").Mobs.Bosses:GetDescendants()) do
+                            if v:IsA("Model") and v:FindFirstChild("Humanoid") then
+                                if v.Humanoid.Health > 0 then
+                                    local distance = GetDistance(v:GetModelCFrame() * FarmModes)
+                                    if autoboss then
+                                        spawn(function()
+                                            game:GetService("RunService").Stepped:Connect(function()
+                                                for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+                                                    if v:IsA("BasePart") then
+                                                        v.CanCollide = false
+                                                    end
+                                                    if v:IsA("Humanoid") then
+                                                        v:ChangeState(11)
+                                                    end
+                                                end
+                                            end)
+                                        end)
                                     end
-                                end)
-                            end)
-                        end
-                        repeat
-                            task.wait()
-                            if GetDistance(v:GetModelCFrame() * FarmModes) < 25 and GetDistance(v:GetModelCFrame() * FarmModes) < 150 then
-                                if TweenFa then
-                                    TweenFa:Cancel()
-                                    wait(.1)
+                                    repeat
+                                        task.wait()
+                                        if distance < 25 and distance < 150 then
+                                            if TweenFa then
+                                                TweenFa:Cancel()
+                                                wait(.1)
+                                            end
+                                            LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes
+                                        else
+                                            TweenFa = Tween(v:GetModelCFrame() * FarmModes)
+                                        end
+                                        if v.Humanoid.Health > 0 and v:FindFirstChild("HumanoidRootPart") and distance < 10 then
+                                            NearestMobs = true
+                                        elseif v.Humanoid.Health <= 0 or not v:FindFirstChild("Humanoid") and distance > 10 then
+                                            NearestMobs = false
+                                        end
+                                    until not getgenv().autoboss or not v.Parent or v.Humanoid.Health <= 0 or not v:IsDescendantOf(workspace)
+                                    NearestMobs = false
                                 end
-                                LP.Character.HumanoidRootPart.CFrame = v:GetModelCFrame() * FarmModes
-                            else
-                                TweenFa = Tween(v:GetModelCFrame() * FarmModes)
                             end
-                            if v.Humanoid.Health > 0 and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and GetDistance(v:GetModelCFrame() * FarmModes) < 10 then
-                                NearestMobs = true
-                            elseif v.Humanoid.Health <= 0 or not v:FindFirstChild("Humanoid") and GetDistance(v:GetModelCFrame() * FarmModes) > 10 then
-                                NearestMobs = false
-                            end
-                        until not getgenv().autoboss or not v.Parent or v.Humanoid.Health <= 0 or not v:IsDescendantOf(workspace)
-                        NearestMobs = false
+                        end
                     end
                 else
-                    antifall3:Destroy()
+                    if antifall3 then
+                        antifall3:Destroy()
+                    end
                 end
-                if getgenv().autoboss == false then
+                if getgenv().autoboss == false and TweenFa then
                     TweenFa:Cancel()
                 end
             end)
@@ -2994,7 +3210,7 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
                 while running do
                     local success, error = pcall(function()
                         for i, v in next, workspace.Mobs:GetDescendants() do
-                            if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") then
+                            if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
                                 local Handle_Initiate_S_ = game.ReplicatedStorage.Remotes.To_Server.Handle_Initiate_S_
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
@@ -3066,7 +3282,7 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
                             end
                         end
                     end)
-                    wait(0.05)
+                    wait()
                 end
             end
         end
@@ -3172,8 +3388,11 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
         CurrentValue = false,
         Flag = "Toggle6",
         Callback = function(state)
-            getgenv().autoloot = state;
             loot()
+            while true do
+                getgenv().autoloot = state;
+                wait(1)
+            end
         end
     })
 
@@ -3574,16 +3793,40 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
 
     local Section = Farmsetting:CreateSection("Boss Farm 1/2")
 
-    getgenv().ABFarmMethod = "Above"
-    Farmsetting:CreateDropdown({
-        Name = "Farm Method",
-        Options = { "Above", "Below", "Behind", "Ahead" },
-        CurrentOption = "Below",
-        MultiSelection = false,
-        Flag = "Dropdown1",
-        Callback = function(self)
-            getgenv().ABFarmMethod = self
-        end,
+    Farmsetting:CreateToggle({
+        Name = "Farm Method(Above)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().FarmMethod = "Above";
+        end
+    })
+
+    Farmsetting:CreateToggle({
+        Name = "Farm Method(Below)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().FarmMethod = "Below";
+        end
+    })
+
+    Farmsetting:CreateToggle({
+        Name = "Farm Method(Behind)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().FarmMethod = "Behind";
+        end
+    })
+
+    Farmsetting:CreateToggle({
+        Name = "Farm Method(Ahead)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().FarmMethod = "Ahead";
+        end
     })
 
     getgenv().ABfarmdistance = 5
@@ -3595,7 +3838,7 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
         CurrentValue = 5,
         Flag = "Slider5",
         Callback = function(self)
-            getgenv().ABfarmdistance = self
+            getgenv().farmdistance = self
         end,
     })
 
@@ -3607,118 +3850,7 @@ elseif placeId == 11468159863 or placeId == 13881804983 or placeId == 1388305985
             getgenv().autoboss = state;
         end
     })
-
-    Farmsetting:CreateToggle({
-        Name = "Farm All NPC",
-        CurrentValue = false,
-        Flag = "Toggle46",
-        Callback = function(state)
-            getgenv().autonpc = state;
-        end
-    })
-elseif placeId == 5956785391 then
-    getgenv().antiidle = true;
-
-    --anti idle
-    function idle()
-        if antiidle then
-            for i, v in pairs(getconnections(game:GetService("Players").LocalPlayer.Idled)) do
-                v:Disable()
-            end
-            task.wait(60)
-        end
-    end
-
-    local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
-    local Window = Rayfield:CreateWindow({
-        Name = "Apple HUB | Project Slayers",
-        LoadingTitle = "Apple HUB",
-        LoadingSubtitle = "by Huyninja",
-        ConfigurationSaving = {
-            Enabled = false,
-            FolderName = nil,
-            FileName = "Apple HUB"
-        },
-        Discord = {
-            Enabled = false,
-            Invite = "",
-            RememberJoins = true
-        },
-        KeySystem = false,
-        KeySettings = {
-            Title = "Apple HUB | Project Slayers",
-            Subtitle = "Apple HUB key system",
-            Note = "Join AppleHUB Discord for Key",
-            FileName = "AppleKey",
-            SaveKey = true,
-            GrabKeyFromSite = false,
-            Key = { "Apple" }
-        }
-    })
-
-    local Misc = Window:CreateTab("Other", 4483362458)
-
-    local Section = Misc:CreateSection("Spin")
-    Misc:CreateButton({
-        Name = "Daily Spin",
-        Interact = "Click",
-        Flag = "Button1",
-        Callback = function(state)
-            if state then
-                game:GetService("ReplicatedStorage"):WaitForChild("spins_thing_remote"):InvokeServer()
-            end
-        end
-    })
-
-    Misc:CreateButton({
-        Name = "Clan Spin",
-        Interact = "Click",
-        Flag = "Button2",
-        Callback = function(state)
-            if state then
-                game:GetService("ReplicatedStorage").Remotes.To_Server.Handle_Initiate_S:InvokeServer("check_can_spin")
-            end
-        end
-    })
-
-    Misc:CreateButton({
-        Name = "Spin Supreme/Mythic Clan",
-        Interact = "Click",
-        Flag = "Button3",
-        Callback = function(state)
-            if state then
-                local clan = game:GetService("ReplicatedStorage").Player_Data[game.Players.LocalPlayer.Name].Clan
-                local wanted = { "Kamado", "Agatsuma", "Rengoku", "Uzui", "Soyama", "Tokito", "Tomioka", "Hashibira" }
-
-                repeat
-                    wait(0.001)
-                    game:GetService("ReplicatedStorage").Remotes.To_Server.Handle_Initiate_S_:InvokeServer(
-                        "check_can_spin",
-                        game:GetService("ReplicatedStorage").Player_Data[game.Players.LocalPlayer.Name].Spins, clan)
-                until table.find(wanted, clan.Value)
-            end
-        end
-    })
-
-
-    Misc:CreateButton({
-        Name = "Clan Spin",
-        Interact = "Click",
-        Flag = "Button4",
-        Callback = function(state)
-            if state then
-                local clan = game:GetService("ReplicatedStorage").Player_Data[game.Players.LocalPlayer.Name].Clan
-                local wanted = { "Kamado", "Agatsuma", "Rengoku", "Uzui" }
-                repeat
-                    wait(0.001)
-                    game:GetService("ReplicatedStorage").Remotes.To_Server.Handle_Initiate_S_:InvokeServer(
-                        "check_can_spin",
-                        game:GetService("ReplicatedStorage").Player_Data[game.Players.LocalPlayer.Name].Spins, clan)
-                until table.find(wanted, clan.Value)
-            end
-        end
-    })
+elseif placeId == 5956785391 then -- Menu
 elseif placeId == 11468034852 then
     getgenv().NoSunDmg = false;
     getgenv().killaura1 = false;
@@ -3949,43 +4081,129 @@ elseif placeId == 11468034852 then
 
     function revtexture()
         if reducelag3 then
-            local decalsyeeted = true
-            local g = game
-            local w = g.Workspace
-            local l = g.Lighting
-            local t = w.Terrain
-            t.WaterWaveSize = 0
-            t.WaterWaveSpeed = 0
-            t.WaterReflectance = 0
-            t.WaterTransparency = 0
-            l.GlobalShadows = false
-            l.FogEnd = 9e9
-            l.Brightness = 0
-            settings().Rendering.QualityLevel = "Level01"
-            for i, v in pairs(g:GetDescendants()) do
-                if v:IsA("Part") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
-                    v.Material = "Plastic"
-                    v.Reflectance = 0
-                elseif v:IsA("Decal") or v:IsA("Texture") and decalsyeeted then
-                    v.Transparency = 1
-                elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                    v.Lifetime = NumberRange.new(0)
-                elseif v:IsA("Explosion") then
-                    v.BlastPressure = 1
-                    v.BlastRadius = 1
-                elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") then
-                    v.Enabled = false
-                elseif v:IsA("MeshPart") then
-                    v.Material = "Plastic"
-                    v.Reflectance = 0
-                    v.TextureID = 10385902758728957
+            local decalsYeeted = true
+            local workspace = game.Workspace
+            local lighting = game.Lighting
+            local terrain = workspace.Terrain
+
+            -- Improve performance by setting hidden properties only once
+            local lightingTechnology = 2
+            local decorationEnabled = false
+            sethiddenproperty(lighting, "Technology", lightingTechnology)
+            sethiddenproperty(terrain, "Decoration", decorationEnabled)
+
+            -- Use table instead of separate settings
+            local terrainSettings = {
+                WaterWaveSize = 0,
+                WaterWaveSpeed = 0,
+                WaterReflectance = 0,
+                WaterTransparency = 0,
+            }
+            for setting, value in pairs(terrainSettings) do
+                terrain[setting] = value
+            end
+
+            lighting.GlobalShadows = 0
+            lighting.FogEnd = 9e9
+            lighting.Brightness = 0
+            settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+
+            -- Consolidate common operations into functions for better readability and maintainability
+            local function handleBasePart(part)
+                part.Material = Enum.Material.Plastic
+                part.Reflectance = 0
+            end
+
+            local function handleDecalOrTexture(decalOrTexture)
+                if decalsYeeted then
+                    decalOrTexture.Transparency = 1
                 end
             end
-            for i, e in pairs(l:GetChildren()) do
-                if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
-                    e.Enabled = false
+
+            local function handleParticleEmitterOrTrail(emitterOrTrail)
+                emitterOrTrail.Lifetime = NumberRange.new(0)
+            end
+
+            local function handleExplosion(explosion)
+                explosion.BlastPressure = 1
+                explosion.BlastRadius = 1
+            end
+
+            local function handleMeshPart(meshPart)
+                if decalsYeeted then
+                    meshPart.Material = Enum.Material.Plastic
+                    meshPart.Reflectance = 0
+                    meshPart.TextureID = 10385902758728957
                 end
             end
+
+            local function handleSpecialMesh(specialMesh)
+                if decalsYeeted then
+                    specialMesh.TextureId = 0
+                end
+            end
+
+            local function handleShirtGraphic(shirtGraphic)
+                if decalsYeeted then
+                    shirtGraphic.Graphic = ""
+                end
+            end
+
+            local function handleClothing(clothing)
+                if decalsYeeted then
+                    if clothing:IsA("Shirt") then
+                        clothing.ShirtTemplate = ""
+                    elseif clothing:IsA("Pants") then
+                        clothing.PantsTemplate = ""
+                    end
+                end
+            end
+
+            -- Handle existing descendants
+            for _, descendant in pairs(workspace:GetDescendants()) do
+                if descendant:IsA("BasePart") and not descendant:IsA("MeshPart") then
+                    handleBasePart(descendant)
+                elseif descendant:IsA("Decal") or descendant:IsA("Texture") then
+                    handleDecalOrTexture(descendant)
+                elseif descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+                    handleParticleEmitterOrTrail(descendant)
+                elseif descendant:IsA("Explosion") then
+                    handleExplosion(descendant)
+                elseif descendant:IsA("Fire") or descendant:IsA("SpotLight") or descendant:IsA("Smoke") or descendant:IsA("Sparkles") then
+                    descendant.Enabled = false
+                elseif descendant:IsA("MeshPart") then
+                    handleMeshPart(descendant)
+                elseif descendant:IsA("SpecialMesh") then
+                    handleSpecialMesh(descendant)
+                elseif descendant:IsA("ShirtGraphic") then
+                    handleShirtGraphic(descendant)
+                elseif descendant:IsA("Shirt") or descendant:IsA("Pants") then
+                    handleClothing(descendant)
+                end
+            end
+
+            -- Handle new descendants
+            workspace.DescendantAdded:Connect(function(descendant)
+                if descendant:IsA("BasePart") and not descendant:IsA("MeshPart") then
+                    handleBasePart(descendant)
+                elseif descendant:IsA("Decal") or descendant:IsA("Texture") then
+                    handleDecalOrTexture(descendant)
+                elseif descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+                    handleParticleEmitterOrTrail(descendant)
+                elseif descendant:IsA("Explosion") then
+                    handleExplosion(descendant)
+                elseif descendant:IsA("Fire") or descendant:IsA("SpotLight") or descendant:IsA("Smoke") or descendant:IsA("Sparkles") then
+                    descendant.Enabled = false
+                elseif descendant:IsA("MeshPart") then
+                    handleMeshPart(descendant)
+                elseif descendant:IsA("SpecialMesh") then
+                    handleSpecialMesh(descendant)
+                elseif descendant:IsA("ShirtGraphic") then
+                    handleShirtGraphic(descendant)
+                elseif descendant:IsA("Shirt") or descendant:IsA("Pants") then
+                    handleClothing(descendant)
+                end
+            end)
         end
     end
 
@@ -4806,25 +5024,18 @@ elseif placeId == 11468034852 then
                                 local Handle_Initiate_S_ = game.ReplicatedStorage.Remotes.To_Server.Handle_Initiate_S_
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                             end
                         end
                     end)
@@ -4874,7 +5085,7 @@ elseif placeId == 11468034852 then
                             end
                         end
                     end)
-                    wait()
+                    wait(0.05)
                 end
             end
         end
@@ -4887,8 +5098,11 @@ elseif placeId == 11468034852 then
         CurrentValue = false,
         Flag = "Toggle6",
         Callback = function(state)
-            getgenv().autoloot = state;
             loot()
+            while true do
+                getgenv().autoloot = state;
+                wait(1)
+            end
         end
     })
 
@@ -5278,17 +5492,41 @@ elseif placeId == 11468034852 then
     local Mugen = Window:CreateTab("Mugen Train", 4483362458)
 
     getgenv().AMFarmMethod = "Above"
-    Mugen:CreateDropdown({
-        Name = "Farm Method",
-        Options = { "Above", "Below", "Behind", "Ahead" },
-        CurrentOption = "Below",
-        MultiSelection = false,
-        Flag = "Dropdown3",
-        Callback = function(Option)
-            getgenv().AMFarmMethod = Option
-        end,
+    Mugen:CreateToggle({
+        Name = "Farm Method(Above)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().AMFarmMethod = "Above";
+        end
     })
 
+    Mugen:CreateToggle({
+        Name = "Farm Method(Below)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().AMFarmMethod = "Below";
+        end
+    })
+
+    Mugen:CreateToggle({
+        Name = "Farm Method(Behind)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().AMFarmMethod = "Behind";
+        end
+    })
+
+    Mugen:CreateToggle({
+        Name = "Farm Method(Ahead)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().AMFarmMethod = "Ahead";
+        end
+    })
     getgenv().AMfarmdistance = 5;
     Mugen:CreateSlider({
         Name = "Farm Distance",
@@ -5599,43 +5837,129 @@ else
 
     function revtexture()
         if reducelag3 then
-            local decalsyeeted = true
-            local g = game
-            local w = g.Workspace
-            local l = g.Lighting
-            local t = w.Terrain
-            t.WaterWaveSize = 0
-            t.WaterWaveSpeed = 0
-            t.WaterReflectance = 0
-            t.WaterTransparency = 0
-            l.GlobalShadows = false
-            l.FogEnd = 9e9
-            l.Brightness = 0
-            settings().Rendering.QualityLevel = "Level01"
-            for i, v in pairs(g:GetDescendants()) do
-                if v:IsA("Part") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
-                    v.Material = "Plastic"
-                    v.Reflectance = 0
-                elseif v:IsA("Decal") or v:IsA("Texture") and decalsyeeted then
-                    v.Transparency = 1
-                elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                    v.Lifetime = NumberRange.new(0)
-                elseif v:IsA("Explosion") then
-                    v.BlastPressure = 1
-                    v.BlastRadius = 1
-                elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") then
-                    v.Enabled = false
-                elseif v:IsA("MeshPart") then
-                    v.Material = "Plastic"
-                    v.Reflectance = 0
-                    v.TextureID = 10385902758728957
+            local decalsYeeted = true
+            local workspace = game.Workspace
+            local lighting = game.Lighting
+            local terrain = workspace.Terrain
+
+            -- Improve performance by setting hidden properties only once
+            local lightingTechnology = 2
+            local decorationEnabled = false
+            sethiddenproperty(lighting, "Technology", lightingTechnology)
+            sethiddenproperty(terrain, "Decoration", decorationEnabled)
+
+            -- Use table instead of separate settings
+            local terrainSettings = {
+                WaterWaveSize = 0,
+                WaterWaveSpeed = 0,
+                WaterReflectance = 0,
+                WaterTransparency = 0,
+            }
+            for setting, value in pairs(terrainSettings) do
+                terrain[setting] = value
+            end
+
+            lighting.GlobalShadows = 0
+            lighting.FogEnd = 9e9
+            lighting.Brightness = 0
+            settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+
+            -- Consolidate common operations into functions for better readability and maintainability
+            local function handleBasePart(part)
+                part.Material = Enum.Material.Plastic
+                part.Reflectance = 0
+            end
+
+            local function handleDecalOrTexture(decalOrTexture)
+                if decalsYeeted then
+                    decalOrTexture.Transparency = 1
                 end
             end
-            for i, e in pairs(l:GetChildren()) do
-                if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
-                    e.Enabled = false
+
+            local function handleParticleEmitterOrTrail(emitterOrTrail)
+                emitterOrTrail.Lifetime = NumberRange.new(0)
+            end
+
+            local function handleExplosion(explosion)
+                explosion.BlastPressure = 1
+                explosion.BlastRadius = 1
+            end
+
+            local function handleMeshPart(meshPart)
+                if decalsYeeted then
+                    meshPart.Material = Enum.Material.Plastic
+                    meshPart.Reflectance = 0
+                    meshPart.TextureID = 10385902758728957
                 end
             end
+
+            local function handleSpecialMesh(specialMesh)
+                if decalsYeeted then
+                    specialMesh.TextureId = 0
+                end
+            end
+
+            local function handleShirtGraphic(shirtGraphic)
+                if decalsYeeted then
+                    shirtGraphic.Graphic = ""
+                end
+            end
+
+            local function handleClothing(clothing)
+                if decalsYeeted then
+                    if clothing:IsA("Shirt") then
+                        clothing.ShirtTemplate = ""
+                    elseif clothing:IsA("Pants") then
+                        clothing.PantsTemplate = ""
+                    end
+                end
+            end
+
+            -- Handle existing descendants
+            for _, descendant in pairs(workspace:GetDescendants()) do
+                if descendant:IsA("BasePart") and not descendant:IsA("MeshPart") then
+                    handleBasePart(descendant)
+                elseif descendant:IsA("Decal") or descendant:IsA("Texture") then
+                    handleDecalOrTexture(descendant)
+                elseif descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+                    handleParticleEmitterOrTrail(descendant)
+                elseif descendant:IsA("Explosion") then
+                    handleExplosion(descendant)
+                elseif descendant:IsA("Fire") or descendant:IsA("SpotLight") or descendant:IsA("Smoke") or descendant:IsA("Sparkles") then
+                    descendant.Enabled = false
+                elseif descendant:IsA("MeshPart") then
+                    handleMeshPart(descendant)
+                elseif descendant:IsA("SpecialMesh") then
+                    handleSpecialMesh(descendant)
+                elseif descendant:IsA("ShirtGraphic") then
+                    handleShirtGraphic(descendant)
+                elseif descendant:IsA("Shirt") or descendant:IsA("Pants") then
+                    handleClothing(descendant)
+                end
+            end
+
+            -- Handle new descendants
+            workspace.DescendantAdded:Connect(function(descendant)
+                if descendant:IsA("BasePart") and not descendant:IsA("MeshPart") then
+                    handleBasePart(descendant)
+                elseif descendant:IsA("Decal") or descendant:IsA("Texture") then
+                    handleDecalOrTexture(descendant)
+                elseif descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") then
+                    handleParticleEmitterOrTrail(descendant)
+                elseif descendant:IsA("Explosion") then
+                    handleExplosion(descendant)
+                elseif descendant:IsA("Fire") or descendant:IsA("SpotLight") or descendant:IsA("Smoke") or descendant:IsA("Sparkles") then
+                    descendant.Enabled = false
+                elseif descendant:IsA("MeshPart") then
+                    handleMeshPart(descendant)
+                elseif descendant:IsA("SpecialMesh") then
+                    handleSpecialMesh(descendant)
+                elseif descendant:IsA("ShirtGraphic") then
+                    handleShirtGraphic(descendant)
+                elseif descendant:IsA("Shirt") or descendant:IsA("Pants") then
+                    handleClothing(descendant)
+                end
+            end)
         end
     end
 
@@ -6100,25 +6424,18 @@ else
                                 local Handle_Initiate_S_ = game.ReplicatedStorage.Remotes.To_Server.Handle_Initiate_S_
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                                 Handle_Initiate_S_:InvokeServer("arrow_knock_back_damage", game.Players.LocalPlayer
                                     .Character, v.HumanoidRootPart.CFrame, v, 500, 500)
-                                task.wait(0.01)
                             end
                         end
                     end)
@@ -6168,7 +6485,7 @@ else
                             end
                         end
                     end)
-                    wait()
+                    wait(0.05)
                 end
             end
         end
@@ -6181,8 +6498,11 @@ else
         CurrentValue = false,
         Flag = "Toggle6",
         Callback = function(state)
-            getgenv().autoloot = state;
             loot()
+            while true do
+                getgenv().autoloot = state;
+                task.wait(1)
+            end
         end
     })
 
@@ -6572,15 +6892,40 @@ else
 
     local Dungeon = Window:CreateTab("Dungeon", 4483362458)
     getgenv().ADFarmMethod = "Above"
-    Dungeon:CreateDropdown({
-        Name = "Farm Method",
-        Options = { "Above", "Below", "Behind", "Ahead" },
-        CurrentOption = "Below",
-        MultiSelection = false,
-        Flag = "Dropdown2",
-        Callback = function(self)
-            getgenv().ADFarmMethod = self
-        end,
+    Dungeon:CreateToggle({
+        Name = "Farm Method(Above)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().ADFarmMethod = "Above";
+        end
+    })
+
+    Dungeon:CreateToggle({
+        Name = "Farm Method(Below)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().ADFarmMethod = "Below";
+        end
+    })
+
+    Dungeon:CreateToggle({
+        Name = "Farm Method(Behind)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().ADFarmMethod = "Behind";
+        end
+    })
+
+    Dungeon:CreateToggle({
+        Name = "Farm Method(Ahead)",
+        CurrentValue = false,
+        Flag = "Toggle",
+        Callback = function(state)
+            getgenv().ADFarmMethod = "Ahead";
+        end
     })
 
     getgenv().ADfarmdistance = 5
