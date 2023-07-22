@@ -150,5 +150,3 @@ function mythsup()
         until table.find(wanted, clan.Value)
     end)
 end
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Huyninja/AppleHUB/main/antikick.lua", true))()
