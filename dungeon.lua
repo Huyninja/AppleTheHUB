@@ -86,7 +86,6 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
 end)
 
 --anti kick
-repeat wait() until game:IsLoaded()
 local skill_module = require(game:GetService("ReplicatedStorage").Modules.Server["Skills_Modules_Handler"])
 
 hookfunction(skill_module.Kick, function()
