@@ -105,8 +105,6 @@ function clan(name)
 end
 
 --anti kick
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Huyninja/AppleHUB/main/antikick.lua", true))()
-
 local hook
 hook = hookmetamethod(game, "__namecall", function(self, ...)
     args = { ... }
@@ -2070,7 +2068,7 @@ Misc:CreateToggle({
     CurrentValue = false,
     Flag = "Toggle37",
     Callback = function(state)
-        getgenv().getgenv().TP = state
+        getgenv().TP = state
     end
 })
 
