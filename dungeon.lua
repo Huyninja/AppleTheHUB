@@ -86,6 +86,18 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
 end)
 
 --anti kick
+```lua
+local kickMeta = getrawmetatable(game)
+
+setreadonly(kickMeta, false)
+
+kickMeta.__index = function(instance, method)
+   if method == 'Kick' or method == 'kick' then
+      return nil
+   end
+   return kickMeta.__index(instance, method)
+end
+
 local skill_module = require(game:GetService("ReplicatedStorage").Modules.Server["Skills_Modules_Handler"])
 
 hookfunction(skill_module.Kick, function()
