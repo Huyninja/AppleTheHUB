@@ -86,8 +86,6 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
 end)
 
 --anti kick
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Huyninja/AppleHUB/main/antikick.lua", true))()
-
 repeat wait() until game:IsLoaded()
 local skill_module = require(game:GetService("ReplicatedStorage").Modules.Server["Skills_Modules_Handler"])
 
