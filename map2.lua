@@ -103,8 +103,6 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
 end)
 
 --anti kick
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Huyninja/AppleHUB/main/antikick.lua", true))()
-
 local hook
 hook = hookmetamethod(game, "__namecall", function(self, ...)
     args = { ... }
